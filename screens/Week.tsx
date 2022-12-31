@@ -15,7 +15,9 @@ const Week = () => {
   const route = useRoute<RouteProp<AppRoutes, "Week">>();
   const week = route.params;
   const { resolutions } = useGlobalContext().data;
-  if (!week) return Error();
+
+  if (!week) return <></>;
+
   return (
     <PageContainer>
       {week.map((d, i) => {

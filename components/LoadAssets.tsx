@@ -22,19 +22,19 @@ export const useGlobalContext = () => useContext(MyGlobalContext);
 export const resetCount = (data: AppData) => {
   const { resolutions, eventLog } = data;
 
-  eventLog.map((e) => {
+  eventLog.forEach((e) => {
     e.date = moment(e.date);
   });
 
   let resolutionsUpdate = [...resolutions];
-  resolutionsUpdate.map((r) => {
+  resolutionsUpdate.forEach((r) => {
     r.completedToday = false;
     r.completed = 0;
   });
 
   for (let x = eventLog.length - 1; x >= 0; x--) {
     if (moment(eventLog[x].date) < moment().startOf("month")) break;
-    resolutionsUpdate.map((r) => {
+    resolutionsUpdate.forEach((r) => {
       if (r.id === eventLog[x].resolutionId) {
         if (moment(eventLog[x].date).dayOfYear() === moment().dayOfYear()) {
           r.completedToday = true;

@@ -5,8 +5,8 @@ import { Event } from "../../../utils/Types";
 export const getYear = (eventLog: Event[]) => {
   let today = moment();
   let year = Array(today.month() + 1)
-    .fill({})
-    .map((_, i) => makeMonth({ month: i }));
+    .fill("")
+    .map((_, i) => makeMonth(i));
 
   eventLog.forEach((e) => {
     let eventDate = moment(e.date);
@@ -17,24 +17,10 @@ export const getYear = (eventLog: Event[]) => {
     });
   });
 
-  //   for (let x = eventLog.length - 1; x >= 0; x--) {
-  //     let event = eventLog[x];
-  //     let eventDate = moment(event.date);
-  //     console.log("loop", eventDate.month(), year.length);
-  //     year[eventDate.month()].weeks.forEach((w) => {
-  //       w.forEach((d) => {
-  //         if (eventDate.dayOfYear() === moment(d.moment).dayOfYear()) d.events.push(event);
-  //       });
-  //     });
-  //   }
-
   return year;
 };
 
-interface MakeMonthProps {
-  month: number;
-}
-const makeMonth = ({ month }: MakeMonthProps) => {
+const makeMonth = (month: number) => {
   const startDay = moment().set("M", month).startOf("month").startOf("week");
   const endDay = moment().set("M", month).endOf("month").endOf("week");
 

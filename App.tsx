@@ -1,29 +1,27 @@
-import React from 'react'
-import { StatusBar } from 'expo-status-bar';
-import { createStackNavigator } from '@react-navigation/stack';
-import { NavigationContainer } from '@react-navigation/native';
-import { Create, Home, Resolutions, Week, Achievements } from './screens';
-import { LoadAssets } from './components';
+import React from "react";
+import { StatusBar } from "expo-status-bar";
+import { createStackNavigator } from "@react-navigation/stack";
+import { NavigationContainer } from "@react-navigation/native";
+import { Create, Home, Resolutions, Week, Achievements } from "./screens";
+import { LoadAssets } from "./components";
 
-const MainStack = createStackNavigator()
+const MainStack = createStackNavigator();
 
 export default function App() {
-
-
   return (
     <LoadAssets>
       <NavigationContainer>
-        <StatusBar style={'light'} />
+        <StatusBar style={"light"} />
         <MainStack.Navigator
           screenOptions={{
-            headerShown: false
+            headerShown: false,
           }}
         >
-          <MainStack.Screen name='Home' component={Home} />
-          <MainStack.Screen name='Resolutions' component={Resolutions} />
-          <MainStack.Screen name='Create' component={Create} />
-          <MainStack.Screen name='Achievements' component={Achievements} />
-          <MainStack.Screen name='Week' component={Week} />
+          <MainStack.Screen name="Home" component={Home} />
+          <MainStack.Screen name="Resolutions" component={Resolutions} />
+          <MainStack.Screen name="Create" component={Create} />
+          <MainStack.Screen name="Achievements" component={Achievements} />
+          {/* <MainStack.Screen name="Week" component={Week} /> */}
         </MainStack.Navigator>
       </NavigationContainer>
     </LoadAssets>

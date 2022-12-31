@@ -23,17 +23,17 @@ const Home = () => {
           </View>
 
           <View style={styles.lowerContainer}>
-            <Button
+            <NavButton label="Complete" navTo="Resolutions" />
+            <NavButton label="Create" bgColor={2} navTo="Create" />
+            <NavButton label="Calendar" bgColor={3} navTo="Achievements" />
+          </View>
+          {/* <Button
               onPress={async () => {
                 await AsyncStorage.clear();
                 setData(initialData);
               }}
               title="RESET?"
-            />
-            <NavButton label="Complete" navTo="Resolutions" />
-            <NavButton label="Create" bgColor={2} navTo="Create" />
-            <NavButton label="Calendar" bgColor={3} navTo="Achievements" />
-          </View>
+            /> */}
         </>
       ) : (
         <></>
