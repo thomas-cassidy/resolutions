@@ -4,6 +4,8 @@ import { initialData } from "../utils/InitialData";
 import { AppData, GlobalContext } from "../utils/Types";
 import { fetchAppData, saveAppData } from "../utils/SaveLoadData";
 import moment from "moment";
+import { useAssets } from "expo-asset";
+import * as SplashScreen from "expo-splash-screen";
 
 interface Props {
   children: ReactNode;
@@ -12,7 +14,7 @@ interface Props {
 const initContext = {
   data: initialData,
   setData: () => (d: AppData) => {},
-  backgroundImage: require("../assets/clare1.jpeg"),
+  imageAssets: [],
 };
 
 const MyGlobalContext = createContext<GlobalContext>(initContext);
@@ -51,16 +53,23 @@ export const resetCount = (data: AppData) => {
   return { ...data, resolutions: resolutionsUpdate };
 };
 
+SplashScreen.preventAutoHideAsync();
+
 const LoadAssets = ({ children }: Props) => {
   const [ready, setReady] = useState(false);
   const [appState, setAppState] = useState(initialData);
+  const [imageAssets, error] = useAssets(require("../assets/clare1.jpeg"));
 
   useEffect(() => {
     if (ready) {
       saveAppData(appState);
-      // console.log('saved')
     }
   }, [appState]);
+
+  const clearSplash = async () => {
+    await SplashScreen.hideAsync();
+    setReady(true);
+  };
 
   useEffect(() => {
     fetchAppData()
@@ -70,13 +79,13 @@ const LoadAssets = ({ children }: Props) => {
           setAppState(() => resetCount(data));
         }
       })
-      .then(() => setReady(true))
-      .catch(() => setReady(true));
+      .then(() => clearSplash())
+      .catch(() => clearSplash());
   }, []);
 
-  if (ready) {
+  if (ready && imageAssets) {
     return (
-      <MyGlobalContext.Provider value={{ data: appState, setData: setAppState }}>
+      <MyGlobalContext.Provider value={{ data: appState, setData: setAppState, imageAssets }}>
         {children}
       </MyGlobalContext.Provider>
     );

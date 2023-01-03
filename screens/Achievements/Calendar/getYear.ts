@@ -10,6 +10,7 @@ export const getYear = (eventLog: Event[]) => {
 
   eventLog.forEach((e) => {
     let eventDate = moment(e.date);
+    if (eventDate.year() != today.year()) return;
     year[eventDate.month()].weeks.forEach((w) => {
       w.forEach((d) => {
         if (eventDate.dayOfYear() === moment(d.moment).dayOfYear()) d.events.unshift(e);
