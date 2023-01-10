@@ -1,14 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { HomeBackground, Logo, NavButton, PageContainer } from "../components";
 import { useGlobalContext } from "../components/LoadAssets";
 import { gColors, gSizes } from "../utils/GlobalStyles";
-import { initialData } from "../utils/InitialData";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-// import AppLoading from "expo-app-loading";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Home = () => {
-  const { data, setData } = useGlobalContext();
+  // const { data, setData } = useGlobalContext();
   const [ready, setReady] = useState(false);
 
   return (
