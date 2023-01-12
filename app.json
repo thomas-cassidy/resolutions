@@ -13,10 +13,13 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.tcass2.resolutions"
+      "bundleIdentifier": "com.tcass2.resolutions",
+      "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {

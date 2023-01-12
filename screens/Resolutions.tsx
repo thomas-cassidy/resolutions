@@ -99,11 +99,15 @@ const Resolutions = ({ navigation }: Props) => {
         </View>
       </View>
       <View style={{ justifyContent: "space-evenly", flexDirection: "row" }}>
-        <TouchableOpacity onPress={() => setCurrentDate((prev) => prev.clone().subtract(1, "day"))}>
+        <TouchableOpacity
+          style={{ flex: 1, alignItems: "center" }}
+          onPress={() => setCurrentDate((prev) => prev.clone().subtract(1, "day"))}
+        >
           <Text style={styles.dateText}>-</Text>
         </TouchableOpacity>
         <Text style={styles.dateText}>{currentDate.locale("en").calendar()}</Text>
         <TouchableOpacity
+          style={{ flex: 1, alignItems: "center" }}
           onPress={() =>
             setCurrentDate((prev) =>
               prev.isSame(moment(), "day") ? prev : prev.clone().add(1, "day")
