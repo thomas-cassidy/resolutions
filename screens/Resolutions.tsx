@@ -1,12 +1,20 @@
 import { StackNavigationProp } from "@react-navigation/stack";
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Pressable, TouchableOpacity } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  TouchableOpacity,
+  AppState,
+  AppStateStatus,
+} from "react-native";
 import moment from "moment";
-import { PageContainer, ResolutionButton } from "../components";
+import { PageContainer, ResolutionButton, TextBasic } from "../components";
 import { useGlobalContext } from "../components/LoadAssets";
 import { gColors, gSizes } from "../utils/GlobalStyles";
 import { AppRoutes } from "../utils/Routes";
-import { Resolution } from "../utils/Types";
+import { resetCount } from "../utils/resetResolutionCount";
 
 interface Props {
   navigation: StackNavigationProp<AppRoutes, "Resolutions">;
@@ -17,61 +25,51 @@ const Resolutions = ({ navigation }: Props) => {
     data: { resolutions, eventLog },
     setData,
   } = useGlobalContext();
+  const [currentDate, setCurrentDate] = useState(moment());
+
   const HALF = Math.floor(resolutions.length / 2);
   const LEFT = resolutions.slice(0, HALF);
   const RIGHT = resolutions.slice(HALF);
 
-  const [currentDate, setCurrentDate] = useState(moment());
+  const incrementDate = () =>
+    setCurrentDate((prev) => (prev.isSame(moment(), "day") ? prev : prev.clone().add(1, "day")));
+
+  const decrementDate = () =>
+    setCurrentDate((prev) =>
+      prev.isSame(moment().startOf("year"), "day") ? prev : prev.clone().subtract(1, "day")
+    );
+
+  const onAppStateChange = useCallback((state: AppStateStatus) => {
+    if (state === "background") {
+      setCurrentDate(moment());
+    }
+  }, []);
 
   useEffect(() => {
-    //check completedToday and set correctly on resolutions
-    let resolutionsUpdate: Resolution[] = [...resolutions];
+    const appStateSubscription = AppState.addEventListener("change", onAppStateChange);
+    return () => {
+      appStateSubscription.remove();
+    };
+  }, []);
 
-    resolutionsUpdate.forEach((r) => (r.completedToday = false));
-
-    eventLog.forEach((e) => {
-      if (moment(e.date).isSame(currentDate, "day")) {
-        resolutions.forEach((r) => r.id === e.resolutionId && (r.completedToday = true));
-      }
-    });
-
-    setData((prev) => {
-      let newData = { ...prev };
-      newData.resolutions = resolutionsUpdate;
-      return newData;
-    });
+  useEffect(() => {
+    setData((prev) => resetCount({ ...prev }, currentDate));
   }, [currentDate]);
 
   const complete = (id: number) => {
+    const newEvent = {
+      id: parseInt(Math.random().toString().substring(2)),
+      resolutionId: id,
+      date: currentDate,
+    };
     setData((prev) => {
-      let { resolutions, eventLog } = { ...prev };
-
-      for (let x = 0; x < resolutions.length; x++) {
-        if (resolutions[x].id === id) {
-          if (
-            resolutions[x].completed < resolutions[x].target &&
-            resolutions[x].completedToday === false
-          ) {
-            resolutions[x].completed += 1;
-            resolutions[x].completedToday = true;
-            eventLog.push({
-              id: parseInt(Math.random().toString().substring(2)),
-              resolutionId: id,
-              date: currentDate,
-            });
-          }
-          break;
-        }
-      }
-
-      return { resolutions, eventLog };
+      return resetCount({ ...prev, eventLog: [...prev.eventLog, newEvent] }, currentDate);
     });
   };
 
-  const onPress = (id: number) => complete(id);
-
   return (
     <PageContainer>
+      {/* main */}
       <View style={{ flexDirection: "row", flex: 1 }}>
         <View style={styles.column}>
           <Pressable onPress={() => navigation.pop()}>
@@ -82,7 +80,7 @@ const Resolutions = ({ navigation }: Props) => {
               key={i}
               resolution={res}
               colorIndex={i % gColors.btnColors.length}
-              onPress={() => onPress(res.id)}
+              onPress={() => !res.completedToday && complete(res.id)}
             />
           ))}
         </View>
@@ -93,41 +91,33 @@ const Resolutions = ({ navigation }: Props) => {
               key={i}
               colorIndex={(i + HALF) % gColors.btnColors.length}
               resolution={res}
-              onPress={() => onPress(res.id)}
+              onPress={() => !res.completedToday && complete(res.id)}
             />
           ))}
         </View>
       </View>
+
+      {/* footer */}
       <View style={{ justifyContent: "space-evenly", flexDirection: "row" }}>
-        <TouchableOpacity
-          style={{ flex: 1, alignItems: "center" }}
-          onPress={() => setCurrentDate((prev) => prev.clone().subtract(1, "day"))}
-        >
-          <Text style={styles.dateText}>-</Text>
+        <TouchableOpacity style={styles.footerButton} onPress={decrementDate}>
+          <TextBasic>-</TextBasic>
         </TouchableOpacity>
-        <Text style={styles.dateText}>{currentDate.locale("en").calendar()}</Text>
-        <TouchableOpacity
-          style={{ flex: 1, alignItems: "center" }}
-          onPress={() =>
-            setCurrentDate((prev) =>
-              prev.isSame(moment(), "day") ? prev : prev.clone().add(1, "day")
-            )
-          }
-        >
-          <Text style={styles.dateText}>+</Text>
+        <TextBasic>{currentDate.locale("plop").calendar()}</TextBasic>
+        <TouchableOpacity style={styles.footerButton} onPress={incrementDate}>
+          <TextBasic>+</TextBasic>
         </TouchableOpacity>
       </View>
     </PageContainer>
   );
 };
 
-moment.updateLocale("en", {
+moment.updateLocale("plop", {
   calendar: {
     lastDay: "[Yesterday]",
     sameDay: "[Today]",
     nextDay: "[Tomorrow]",
-    lastWeek: "[last] dddd",
-    sameElse: "L",
+    lastWeek: "dddd",
+    sameElse: "dddd Do MMM",
   },
 });
 
@@ -143,11 +133,7 @@ const styles = StyleSheet.create({
     padding: gSizes.s,
     textAlign: "center",
   },
-  dateText: {
-    color: gColors.secondary,
-    fontSize: gSizes.l,
-    fontWeight: "bold",
-  },
+  footerButton: { flex: 1, alignItems: "center" },
 });
 
 export default Resolutions;

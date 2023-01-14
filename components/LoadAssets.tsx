@@ -3,9 +3,10 @@ import React, { createContext, ReactNode, useContext, useEffect, useState } from
 import { initialData } from "../utils/InitialData";
 import { AppData, GlobalContext } from "../utils/Types";
 import { fetchAppData, saveAppData } from "../utils/SaveLoadData";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import { useAssets } from "expo-asset";
 import * as SplashScreen from "expo-splash-screen";
+import { resetCount } from "../utils/resetResolutionCount";
 
 interface Props {
   children: ReactNode;
@@ -20,38 +21,6 @@ const initContext = {
 const MyGlobalContext = createContext<GlobalContext>(initContext);
 
 export const useGlobalContext = () => useContext(MyGlobalContext);
-
-export const resetCount = (data: AppData) => {
-  const { resolutions, eventLog } = data;
-
-  eventLog.forEach((e) => {
-    e.date = moment(e.date);
-  });
-
-  let resolutionsUpdate = [...resolutions];
-  resolutionsUpdate.forEach((r) => {
-    r.completedToday = false;
-    r.completed = 0;
-  });
-
-  for (let x = eventLog.length - 1; x >= 0; x--) {
-    if (moment(eventLog[x].date) < moment().startOf("month")) break;
-    resolutionsUpdate.forEach((r) => {
-      if (r.id === eventLog[x].resolutionId) {
-        if (moment(eventLog[x].date).dayOfYear() === moment().dayOfYear()) {
-          r.completedToday = true;
-          r.completed += 1;
-        } else if (r.targetTime === "week" && moment(eventLog[x].date) > moment().startOf("week")) {
-          r.completed += 1;
-        } else if (r.targetTime === "month") {
-          r.completed += 1;
-        }
-      }
-    });
-  }
-
-  return { ...data, resolutions: resolutionsUpdate };
-};
 
 SplashScreen.preventAutoHideAsync();
 

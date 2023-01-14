@@ -22,15 +22,15 @@ export const getYear = (eventLog: Event[]) => {
 };
 
 const makeMonth = (month: number) => {
-  const startDay = moment().set("M", month).startOf("month").startOf("week");
-  const endDay = moment().set("M", month).endOf("month").endOf("week");
+  const startDay = moment().set("M", month).startOf("month").startOf("isoWeek");
+  const endDay = moment().set("M", month).endOf("month").endOf("isoWeek");
 
   const monthObj: MonthType = {
     name: month,
     weeks: [],
   };
 
-  const day = startDay.clone().subtract(1, "d");
+  const day = startDay.clone().subtract(1, "day");
 
   while (day.isBefore(endDay, "day")) {
     monthObj.weeks.push(

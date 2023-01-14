@@ -1,11 +1,13 @@
 import React, { createContext, Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Animated,
   Dimensions,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
   ViewStyle,
 } from "react-native";
@@ -16,6 +18,9 @@ import { MONTHS } from "../../../utils/InitialData";
 import { MonthType, WeekType } from "./CalendarTypes";
 import { getYear } from "./getYear";
 import { Resolution } from "../../../utils/Types";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { resetCount } from "../../../utils/resetResolutionCount";
 
 const { width, height } = Dimensions.get("window");
 
@@ -37,12 +42,34 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const Week = ({ resolutions, month, week, index, setWeekOpen, isCurrentMonth }: weekProps) => {
   const [open, setOpen] = useState(false);
+  const { setData } = useGlobalContext();
 
   useEffect(() => {
     if (!isCurrentMonth) {
       if (open) shrink();
     }
   }, [isCurrentMonth]);
+
+  const deleteEvent = (id: number) => {
+    Alert.alert("Are you sure you wish to delete this?", undefined, [
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => {
+          setData((prevData) => {
+            let newData = { ...prevData };
+
+            newData.eventLog = newData.eventLog.filter((e) => e.id !== id);
+
+            resetCount(newData);
+
+            return newData;
+          });
+        },
+      },
+      { text: "Cancel", style: "cancel" },
+    ]);
+  };
 
   const animationRef = useRef(new Animated.Value(0)).current;
   const opacity = animationRef.interpolate({
@@ -188,6 +215,7 @@ const Week = ({ resolutions, month, week, index, setWeekOpen, isCurrentMonth }: 
                         key={i}
                         style={{
                           alignItems: "center",
+                          justifyContent: "space-between",
                           flexDirection: "row",
                           paddingLeft: gSizes.l,
                         }}
@@ -201,6 +229,16 @@ const Week = ({ resolutions, month, week, index, setWeekOpen, isCurrentMonth }: 
                         >
                           {title}
                         </TextBasic>
+
+                        <View style={{ flex: 1, alignItems: "flex-end", paddingRight: gSizes.l }}>
+                          <TouchableOpacity onPress={() => deleteEvent(e.id)}>
+                            <FontAwesomeIcon
+                              icon={faTrashAlt}
+                              size={20}
+                              color={gColors.btnColors[0]}
+                            />
+                          </TouchableOpacity>
+                        </View>
                       </View>
                     );
                   })}
@@ -216,7 +254,7 @@ const Calendar = () => {
   const {
     data: { resolutions, eventLog },
   } = useGlobalContext();
-  const [year, setYear] = useState(getYear(eventLog));
+  const [year, setYear] = useState<MonthType[]>([]);
 
   const [weekOpen, setWeekOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
